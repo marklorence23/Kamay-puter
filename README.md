@@ -1,2 +1,1 @@
-# Kamay-puter
-Handwriting Recognition Grading Assistant
+# web
