@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home | KAMAY-PUTER - Handwriting Recognition Grading Assistant</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+
+<body>
+  <header>
+    <div class="container">
+      <button class="menu-toggle"><i class="fas fa-bars"></i></button>
+      <a style="color: #fff;text-decoration: none;" href="/">
+        <h1><i class="fas fa-graduation-cap"></i> KAMAY-PUTER</h1>
+      </a>
+      <nav>
+        <ul id="navMenu">
+          <li><a href="#" data-target="home">Home</a></li>
+          <li><a href="#" data-target="grade">Grade Paper</a></li>
+          <li><a href="#" data-target="history">History</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+<!-- dito nag seselect -->
+    <div class="test-selection" style="margin-bottom: 30px;">
+      <label for="testSelect">Select Test:</label>
+      <select id="testSelect" class="test-select">
+        <option value="math-quiz-1">Math Quiz 1</option>
+        <option value="english-quiz-1">English Quiz 1</option>
+      </select>
+    </div>
+  <!--  -->
+    <section id="home" class="hero-section">
+      <h2>Welcome to KAMAY-PUTER</h2>
+      <p>AI-powered handwriting recognition and automated grading designed for Filipino teachers.</p>
+      <div class="feature-grid">
+        <div class="feature-card" data-target="grade" data-action="capture">
+          <i class="fas fa-camera"></i>
+          <h3>Capture Paper</h3>
+          <p>Use your device camera to capture student test papers instantly.</p>
+        </div>
+        <div class="feature-card" data-target="grade" data-action="upload">
+          <i class="fas fa-upload"></i>
+          <h3>Upload Paper</h3>
+          <p>Upload an image of handwritten or digital test papers for grading.</p>
+        </div>
+          <div class="feature-card" data-target="detect" data-action="analyze">
+            <i class="fas fa-bolt"></i>
+            <h3>Instant Grading</h3>
+            <p>Get immediate grading results for uploaded papers.</p>
+          </div>
+          <div class="feature-card" data-target="history">
+            <i class="fas fa-history"></i>
+            <h3>Grading History</h3>
+            <p>View previously graded papers and details.</p>
+          </div>
+          <div class="feature-card" data-target="analytics">
+            <i class="fas fa-chart-line"></i>
+            <h3>Performance Insight</h3>
+            <p>See performance trends and analytics for students.</p>
+          </div>
+      </div>
+    </section>
+
+    <section id="grade" class="detection-section">
+      <h2>Grade Test Paper</h2>
+      <div class="upload-area">
+        <p>Select or capture an image of the test paper for automated grading:</p>
+        <input type="file" id="imageInput" accept="image/jpeg,image/jpg,image/png,image/webp">
+        <button id="startCameraBtn" class="btn primary-btn"><i class="fas fa-camera"></i> Use Camera</button>
+        <button id="uploadBtn" class="btn primary-btn"><i class="fas fa-upload"></i> Upload Image</button>
+
+        <div class="image-preview-container">
+          <div id="loadingSpinner" class="spinner-container" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
+              <linearGradient id="a12">
+                <stop offset="0" stop-color="#8b5cf6" stop-opacity="0"></stop>
+                <stop offset="1" stop-color="#8b5cf6"></stop>
+              </linearGradient>
+              <circle fill="none" stroke="url(#a12)" stroke-width="15" stroke-linecap="round"
+                stroke-dasharray="0 44 0 44 0 44 0 44 0 360" cx="100" cy="100" r="70" transform-origin="center">
+                <animateTransform type="rotate" attributeName="transform" calcMode="discrete" dur="2"
+                  values="360;324;288;252;216;180;144;108;72;36" repeatCount="indefinite"></animateTransform>
+              </circle>
+            </svg>
+            <p>Analyzing paper...</p>
+          </div>
+          <video id="videoPreview" autoplay playsinline style="display:none"></video>
+          <img id="imagePreview">
+          <p id="previewPlaceholder">No image selected</p>
+          <button id="captureBtn" class="btn" style="display:none;"><i class="fas fa-circle"
+              style="margin: 0!important;"></i></button>
+        </div>
+
+        <button id="analyzeImageBtn" class="btn success-btn" disabled><i class="fas fa-check-double"></i> Grade
+          Paper</button>
+      </div>
+
+      <div id="resultsSection" class="results-area" style="display:none;">
+        <h3>Grading Results</h3>
+        
+        <!-- Score Display -->
+        <div class="score-display">
+          <div class="score-item">
+            <div class="score-label">Overall Score</div>
+            <div class="score-value" id="overallScore">--</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">Accuracy</div>
+            <div class="score-value" id="accuracyScore">--</div>
+          </div>
+          <div class="score-item">
+            <div class="score-label">Grade</div>
+            <div class="score-value" id="letterGrade">--</div>
+          </div>
+        </div>
+
+        <div class="result-item">
+          <strong>Student Performance:</strong>
+          <span id="performanceLevel"></span>
+        </div>
+        <div class="result-item">
+          <strong>Confidence Level:</strong>
+          <span id="confidenceScore"></span>
+        </div>
+
+        <div class="result-description">
+          <h4>Analysis Summary:</h4>
+          <p id="analysisDescription"></p>
+        </div>
+
+        <div class="feedback-section">
+          <h4>Feedback & Comments:</h4>
+          <ul id="feedbackList">
+            <li>Analysis pending...</li>
+          </ul>
+        </div>
+
+        <div class="scoring-section">
+          <h4>Areas for Improvement:</h4>
+          <ul id="improvementsList">
+            <li>Analysis pending...</li>
+          </ul>
+        </div>
+
+        <button class="btn share-btn">
+          <i class="fas fa-share-alt"></i> Share Results
+        </button>
+      </div>
+    </section>
+
+    <section id="history" class="history-section">
+      <h2>Grading History</h2>
+      <div id="historyList" class="history-list"></div>
+      <p id="noHistoryMessage" style="display:none; text-align:center; color: var(--text-muted);">No previous grading records found.</p>
+    </section>
+    <button id="loadMoreBtn" class="btn primary-btn" style="display: none; margin: 20px auto 0;">Show More</button>
+
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>&copy; 2025 KAMAY-PUTER. All rights reserved. | AI-Powered Education Assistant</p>
+    </div>
+  </footer>
+
+  <!-- Fullscreen image modal -->
+  <div id="imageModal" class="modal"
+    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:9999; justify-content:center; align-items:center;">
+    <img id="modalImg" src="" style="object-fit: contain;object-position: center;width:100%; max-height:90%;">
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const navMenu = document.getElementById("navMenu");
+      const menuToggle = document.querySelector(".menu-toggle");
+
+      // Mobile menu toggle
+      menuToggle.addEventListener("click", function () {
+        navMenu.classList.toggle("show");
+      });
+
+      // Smooth scroll for internal nav
+      document.querySelectorAll("#navMenu a[data-target]").forEach((menuItem) => {
+        menuItem.addEventListener("click", function (e) {
+          e.preventDefault();
+
+          const targetId = this.getAttribute("data-target");
+          const targetSection = document.getElementById(targetId);
+
+          if (targetSection) {
+            targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+
+          navMenu.classList.remove("show");
+        });
+      });
+
+      // Handle URL hash on page load
+      const hash = window.location.hash;
+      if (hash) {
+        const sectionId = hash.substring(1);
+        const targetSection = document.getElementById(sectionId);
+
+        if (targetSection) {
+          setTimeout(() => {
+            targetSection.scrollIntoView({ behavior: "smooth", block: "start" });
+          }, 100);
+        }
+      }
+    });
+  </script>
+
+  <script>
+    // Feature card click handlers
+    document.querySelectorAll('.feature-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const targetId = card.getAttribute('data-target');
+        const actionType = card.getAttribute('data-action');
+        const targetSection = document.getElementById(targetId);
+
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        // Trigger specific actions
+        if (actionType === 'capture') {
+          setTimeout(() => {
+            document.getElementById('startCameraBtn').click();
+          }, 500);
+        } else if (actionType === 'upload') {
+          setTimeout(() => {
+            document.getElementById('uploadBtn').click();
+          }, 500);
+        }
+      });
+    });
+  </script>
+
+  <script type="module">
+    const imageInput = document.getElementById('imageInput');
+    const placeholder = document.getElementById('previewPlaceholder');
+    const analyzeBtn = document.getElementById('analyzeImageBtn');
+    const resultsBox = document.getElementById('resultsSection');
+    const videoPrev = document.getElementById('videoPreview');
+    const imagePrev = document.getElementById('imagePreview');
+    const startBtn = document.getElementById('startCameraBtn');
+    const captureBtn = document.getElementById('captureBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    let stream = null;
+    let currentImageFile = null;
+    let currentAnalysis = null;
+
+    imageInput.addEventListener('change', e => fileSelected(e.target.files[0]));
+    imagePrev.addEventListener('click', () => {
+      if (imagePrev.src) {
+        window.openFullscreen(imagePrev.src);
+      }
+    });
+
+    uploadBtn.addEventListener('click', () => {
+      imageInput.click();
+      stopCamera();
+      videoPrev.style.display = 'none';
+      imagePrev.style.display = 'block';
+      placeholder.style.display = 'none';
+      captureBtn.style.display = 'none';
+    });
+
+    async function fileSelected(file) {
+      if (!file) return;
+      currentImageFile = file;
+      const reader = new FileReader();
+      reader.onload = e => {
+        imagePrev.src = e.target.result;
+        imagePrev.style.display = 'block';
+        placeholder.style.display = 'none';
+        analyzeBtn.disabled = false;
+        resultsBox.style.display = 'none';
+      };
+      reader.readAsDataURL(file);
+    }
+
+    startBtn.addEventListener('click', async () => {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { exact: 'environment' } } });
+      } catch {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      }
+
+      videoPrev.srcObject = stream;
+      videoPrev.style.display = 'block';
+      startBtn.style.display = 'none';
+      captureBtn.style.display = 'inline-flex';
+      placeholder.style.display = 'none';
+      analyzeBtn.disabled = true;
+      imagePrev.style.display = 'none';
+      currentImageFile = null;
+    });
+
+    captureBtn.addEventListener('click', () => {
+      captureBtn.style.display = 'none';
+      const canvas = document.createElement('canvas');
+      canvas.width = videoPrev.videoWidth;
+      canvas.height = videoPrev.videoHeight;
+      canvas.getContext('2d').drawImage(videoPrev, 0, 0);
+      canvas.toBlob(blob => {
+        currentImageFile = new File([blob], 'test-paper-capture.jpg', { type: 'image/jpeg' });
+        const reader = new FileReader();
+        reader.onload = e => {
+          imagePrev.src = e.target.result;
+          imagePrev.style.display = 'block';
+          videoPrev.style.display = 'none';
+          startBtn.style.display = 'inline-flex';
+          analyzeBtn.disabled = false;
+        };
+        reader.readAsDataURL(blob);
+      }, 'image/jpeg');
+
+      stopCamera();
+    });
+
+    function stopCamera() {
+      stream?.getTracks().forEach(t => t.stop());
+    }
+
+    analyzeBtn.addEventListener('click', async () => {
+      startBtn.disabled = true;
+      uploadBtn.disabled = true;
+      captureBtn.disabled = true;
+      analyzeBtn.disabled = true;
+      resultsBox.style.display = 'none';
+      document.getElementById('loadingSpinner').style.display = 'flex';
+      
+      let formData = new FormData();
+      if (currentImageFile) {
+        formData.append('image', currentImageFile);
+        if (currentAnalysis && currentAnalysis?.annotated_image_url && currentAnalysis?.annotated_image_url !== imagePrev.src) {
+          window.appendToHistory(currentAnalysis);
+        }
+        await process(formData);
+      }
+    });
+
+    async function process(formData) {
+      try {
+        const uploadURL = "/api/upload";
+        const res = await fetch(uploadURL, { method: 'POST', body: formData });
+        currentAnalysis = await res.json();
+
+        if (currentAnalysis.annotated_image_url) {
+          imagePrev.src = currentAnalysis.annotated_image_url;
+        } else {
+          currentAnalysis.annotated_image_url = imagePrev.src;
+        }
+        imagePrev.style.display = 'block';
+
+        // Update score displays with proper classes
+        const overallScore = Math.round(currentAnalysis.confidence_score || 0);
+        const scoreElement = document.getElementById('overallScore');
+        scoreElement.innerText = overallScore + "%";
+        
+        // Apply color class based on score
+        scoreElement.className = 'score-value';
+        if (overallScore >= 90) scoreElement.classList.add('excellent');
+        else if (overallScore >= 75) scoreElement.classList.add('good');
+        else if (overallScore >= 60) scoreElement.classList.add('needs-improvement');
+        else scoreElement.classList.add('poor');
+
+        document.getElementById('accuracyScore').innerText = Math.round(currentAnalysis.confidence_score || 0) + "%";
+        document.getElementById('letterGrade').innerText = getLetterGrade(overallScore);
+        document.getElementById('performanceLevel').innerText = currentAnalysis.disease_type || "Average";
+        document.getElementById('confidenceScore').innerText = Math.round(currentAnalysis.confidence_score) + "%";
+        document.getElementById('analysisDescription').innerText = currentAnalysis.description || "Analysis completed successfully.";
+        
+        // Update feedback list
+        const feedbackList = document.getElementById('feedbackList');
+        feedbackList.innerHTML = currentAnalysis.prescription 
+          ? `<li>${currentAnalysis.prescription}</li>` 
+          : '<li>Good work! Keep it up.</li>';
+        
+        // Update improvements list
+        const improvementsList = document.getElementById('improvementsList');
+        improvementsList.innerHTML = currentAnalysis.mitigation_strategies 
+          ? `<li>${currentAnalysis.mitigation_strategies}</li>` 
+          : '<li>Continue practicing to maintain this level.</li>';
+
+        resultsBox.style.display = 'block';
+        startBtn.disabled = false;
+        uploadBtn.disabled = false;
+        captureBtn.disabled = false;
+        document.getElementById('loadingSpinner').style.display = 'none';
+
+      try {
+        // Add test ID to form data
+        const testId = document.getElementById('testSelect').value;
+        formData.append('testId', testId);
+        const uploadURL = "/api/upload";
+        const res = await fetch(uploadURL, { method: 'POST', body: formData });
+        currentAnalysis = await res.json();
+
+        if (currentAnalysis.annotated_image_url) {
+          imagePrev.src = currentAnalysis.annotated_image_url;
+        } else {
+          currentAnalysis.annotated_image_url = imagePrev.src;
+        }
+        imagePrev.style.display = 'block';
+
+        document.getElementById('diseaseType').innerText = currentAnalysis.disease_type;
+        document.getElementById('confidenceScore').innerText = Math.round(currentAnalysis.confidence_score) + "%";
+        document.getElementById('diseaseDescription').innerText = currentAnalysis.description;
+        document.getElementById('prescription').innerText = currentAnalysis.prescription;
+        document.getElementById('mitigation').innerText = currentAnalysis.mitigation_strategies;
+        resultsBox.style.display = 'block';
+        startBtn.disabled = false;
+        uploadBtn.disabled = false;
+        captureBtn.disabled = false;
+        document.getElementById('loadingSpinner').style.display = 'none';
+
+      } catch (err) {
+        console.error(err);
+        alert('❌ Failed to analyze image.');
+        imagePrev.style.display = 'block';
+        resultsBox.style.display = 'block';
+        startBtn.disabled = false;
+        uploadBtn.disabled = false;
+        captureBtn.disabled = false;
+        document.getElementById('loadingSpinner').style.display = 'none';
+
+      }
+        const response = await fetch(historyURL);
+        const { data, total } = await response.json();
+
+        if (!data || data.length === 0) {
+          if (loadedItems === 0) noHistoryMessage.style.display = 'block';
+          loadMoreBtn.style.display = 'none';
+          return;
+        }
+
+        noHistoryMessage.style.display = 'none';
+        totalItems = total;
+
+        data.forEach(item => {
+          const historyItem = document.createElement('div');
+          historyItem.className = 'history-item';
+          historyItem.innerHTML = `
+            <div class="history-item-header">
+              <div class="history-details">
+                <strong>Date:</strong>
+                ${new Date(item.created_at).toLocaleString('en-US', {
+                  month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric',
+                  minute: '2-digit', hour12: true
+                })}<br>
+                <strong>Score:</strong> ${item.confidence_score}%<br>
+                <strong>Grade:</strong> ${item.disease_type || 'N/A'}
+              </div>
+              <button class="btn view-details-btn">View Details</button>
+            </div>
+            <div class="history-expanded-details">
+              <img src="${item.annotated_image_url}" onclick="openFullscreen('${item.annotated_image_url}')" 
+                   style="cursor: pointer; max-height:200px; border-radius: 12px; border:1px solid var(--card-border); margin-bottom:10px;">
+              <div class="history-item-content">
+                <p><strong>Analysis:</strong> ${item.description}</p>
+                <p><strong>Feedback:</strong> ${item.prescription}</p>
+                <p><strong>Improvements:</strong> ${item.mitigation_strategies}</p>
+              </div>
+            </div>
+          `;
+
+          const detailsBtn = historyItem.querySelector('.view-details-btn');
+          const expandedDetails = historyItem.querySelector('.history-expanded-details');
+          detailsBtn.addEventListener('click', () => {
+            expandedDetails.classList.toggle("open");
+            detailsBtn.innerText = expandedDetails.classList.contains("open") ? "Hide Details" : "View Details";
+          });
+
+          historyList.appendChild(historyItem);
+          loadedList.push(item);
+        });
+
+        loadedItems += data.length;
+        currentPage++;
+
+        loadMoreBtn.style.display = loadedItems < totalItems ? 'block' : 'none';
+
+      } catch (err) {
+        console.error('Failed to load history:', err);
+        noHistoryMessage.style.display = 'block';
+        loadMoreBtn.style.display = 'none';
+      }
+    }
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadNextPage();
+    });
+
+    // Load more click
+    loadMoreBtn.addEventListener('click', () => {
+      loadNextPage();
+    });
+
+    // Fullscreen image viewer
+    const modal = document.getElementById('imageModal');
+    const modalImg = document.getElementById('modalImg');
+    window.openFullscreen = function (src) {
+      modalImg.src = src;
+      modal.style.display = 'flex';
+    };
+    modal.addEventListener('click', () => {
+      modal.style.display = 'none';
+      modalImg.src = '';
+    });
+
+    // Dynamic injection for new analysis
+    window.appendToHistory = function (entry) {
+      if (loadedList.some(item => item.id === entry.id)) {
+        return;
+      }
+      loadedList.pop();
+      loadedList.unshift(entry);
+      
+      const historyItem = document.createElement('div');
+      historyItem.className = 'history-item';
+      historyItem.innerHTML = `
+        <div class="history-item-header">
+          <div class="history-details">
+            <strong>Date:</strong>
+            ${new Date(entry.created_at || Date.now()).toLocaleString('en-US', {
+              month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric',
+              minute: '2-digit', hour12: true
+            })}<br>
+            <strong>Score:</strong> ${entry.confidence_score}%<br>
+            <strong>Grade:</strong> ${entry.disease_type || 'N/A'}
+          </div>
+          <button class="btn view-details-btn">View Details</button>
+        </div>
+        <div class="history-expanded-details">
+          <img src="${entry.annotated_image_url}" onclick="openFullscreen('${entry.annotated_image_url}')" 
+               style="cursor: pointer; max-height:200px; border-radius: 12px; border:1px solid var(--card-border); margin-bottom:10px;">
+          <div class="history-item-content">
+            <p><strong>Analysis:</strong> ${entry.description}</p>
+            <p><strong>Feedback:</strong> ${entry.prescription}</p>
+            <p><strong>Improvements:</strong> ${entry.mitigation_strategies}</p>
+          </div>
+        </div>
+      `;
+
+      const detailsBtn = historyItem.querySelector('.view-details-btn');
+      const expandedDetails = historyItem.querySelector('.history-expanded-details');
+      detailsBtn.addEventListener('click', () => {
+        expandedDetails.classList.toggle("open");
+        detailsBtn.innerText = expandedDetails.classList.contains("open") ? "Hide Details" : "View Details";
+      });
+
+      historyList.insertBefore(historyItem, historyList.firstChild);
+      if (historyList.children.length > PAGE_SIZE) {
+        historyList.removeChild(historyList.lastChild);
+      }
+      totalItems++;
+      loadMoreBtn.style.display = loadedItems < totalItems ? 'block' : 'none';
+    };
+  </script>
+
+</body>
+
+</html>
